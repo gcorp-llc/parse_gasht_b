@@ -18,6 +18,7 @@ class UserController extends Controller
     public function index()
     {
         // $users = User::all();
+        
         $users= Cache::flexible('users', [5, 10], function () {
             return DB::table('users')
             ->join('countries', 'users.country_id', '=', 'countries.id')
