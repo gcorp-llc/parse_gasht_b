@@ -11,6 +11,11 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    protected $with=['country'];
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
 
     /**
      * The attributes that are mass assignable.
