@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -53,16 +54,26 @@ class UserController extends Controller
     /**
      * ایجاد کاربر جدید
      */
-    public function store(UserRequest $request)
+    public function store(Request $request)
     {
-        // اعتبارسنجی داده‌ها
+        // قوانین اعتبارسنجی
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'country_id' => 'required|exists:countries,id',
+        ]);
 
+        // چک کردن نتیجه اعتبارسنجی
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-        // ایجاد کاربر جدید
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'country_id'=>$request->country_id
         ]);
 
         return new UserResource($user);
@@ -80,12 +91,22 @@ class UserController extends Controller
     /**
      * به‌روزرسانی کاربر
      */
-    public function update(UserRequest $request, $id)
+    public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        // قوانین اعتبارسنجی
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'country_id' => 'required|exists:countries,id',
+        ]);
 
+        // چک کردن نتیجه اعتبارسنجی
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
         // به‌روزرسانی اطلاعات کاربر
-        $user->update($request->only(['name', 'email', 'password','country_id']));
+        $user->update($request->only(['name', 'email', 'country_id']));
 
         return new UserResource($user);
     }
@@ -98,6 +119,6 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json(null, 204);
+        return response()->json("Delete User  Success", 204);
     }
 }

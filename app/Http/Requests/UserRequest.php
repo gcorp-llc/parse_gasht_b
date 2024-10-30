@@ -21,9 +21,9 @@ class UserRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->user,
-            'password' => 'required|string|min:6|confirmed',
-            'country_id'=> 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'country_id' => 'required|exists:countries,id',
         ];
     }
 
@@ -33,16 +33,12 @@ class UserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'لطفاً نام خود را وارد کنید.',
-            'name.string' => 'نام باید یک رشته متنی باشد.',
-            'name.max' => 'نام نمی‌تواند بیشتر از ۲۵۵ کاراکتر باشد.',
+            'name.required' => 'وارد کردن نام ضروری است.',
             'email.required' => 'وارد کردن ایمیل ضروری است.',
-            'email.email' => 'فرمت ایمیل صحیح نیست.',
             'email.unique' => 'این ایمیل قبلاً ثبت شده است.',
             'password.required' => 'رمز عبور الزامی است.',
-            'password.min' => 'رمز عبور باید حداقل ۶ کاراکتر باشد.',
-            'password.confirmed' => 'تاییدیه رمز عبور مطابقت ندارد.',
-            'country_id.required'=>'کشور مد نظر خود را انتخاب نمایید',
+            'country_id.required' => 'انتخاب کشور الزامی است.',
+            'country_id.exists' => 'کشور انتخابی نامعتبر است.',
         ];
     }
 }
