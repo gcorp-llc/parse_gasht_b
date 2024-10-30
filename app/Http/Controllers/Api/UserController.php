@@ -39,10 +39,14 @@ class UserController extends Controller
                 $query->where('countries.name', $countryName);
             }
 
-            // مرتب‌سازی بر اساس فیلد مشخص‌شده
-            if (in_array($sortBy, ['id', 'name']) && in_array($sortOrder, ['asc', 'desc'])) {
-                $query->orderBy('users.' . $sortBy, $sortOrder);
-            }
+        // مرتب‌سازی بر اساس نام کاربر یا نام کشور
+        if ($sortBy === 'name') {
+            $query->orderBy('users.name', $sortOrder);
+        } elseif ($sortBy === 'country_name') {
+            $query->orderBy('countries.name', $sortOrder);
+        }
+
+
 
          $users = $query->get();
 
