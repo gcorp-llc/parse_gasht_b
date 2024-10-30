@@ -15,16 +15,37 @@ class UserController extends Controller
     /**
      * لیست کاربران
      */
-    public function index()
+    public function index(Request $request)
     {
-        // $users = User::all();
-        
-        $users= Cache::flexible('users', [5, 10], function () {
-            return DB::table('users')
+        // پارامترهای مرتب‌سازی و فیلتر را دریافت می‌کنیم
+        $sortBy = $request->query('sort_by', 'id'); // مرتب‌سازی بر اساس فیلد مورد نظر (پیش‌فرض: id)
+        $sortOrder = $request->query('sort_order', 'asc'); // ترتیب مرتب‌سازی (پیش‌فرض: صعودی)
+        $searchName = $request->query('name'); // پارامتر جستجو بر اساس نام
+        $countryName = $request->query('country_name'); // فیلتر بر اساس کد کشور
+
+        // کش کردن اطلاعات کاربران با قابلیت مرتب‌سازی، جستجو و فیلتر
+            $query = DB::table('users')
             ->join('countries', 'users.country_id', '=', 'countries.id')
-            ->select('users.id', 'users.name', 'users.email', 'countries.name as country_name')
-            ->get();
-        });
+            ->select('users.id', 'users.name', 'users.email', 'countries.name as country_name');
+
+            // فیلتر کردن بر اساس نام کاربر
+            if ($searchName) {
+                $query->where('users.name', 'like', '%' . $searchName . '%');
+            }
+
+            // فیلتر کردن بر اساس کد کشور
+            if ($countryName) {
+                $query->where('countries.name', $countryName);
+            }
+
+            // مرتب‌سازی بر اساس فیلد مشخص‌شده
+            if (in_array($sortBy, ['id', 'name']) && in_array($sortOrder, ['asc', 'desc'])) {
+                $query->orderBy('users.' . $sortBy, $sortOrder);
+            }
+
+         $users = $query->get();
+
+
 
         return UserResource::collection($users);
     }
